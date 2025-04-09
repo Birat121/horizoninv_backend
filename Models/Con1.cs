@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace backend.Models;
 
-public partial class Con
+public partial class Con1
 {
     public decimal TransID { get; set; }
 
