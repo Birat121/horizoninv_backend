@@ -26,9 +26,6 @@ namespace backend.Repository.Transaction
             return entry;
         }
 
-        public async Task<IEnumerable<BGEntry>> ShowBgEntryAsync()
-        {
 
         }
     }
-}
