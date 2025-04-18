@@ -15,4 +15,12 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EditorConfigFiles Remove="E:\backend\backend\backend\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="E:\backend\backend\backend\.editorconfig" />
+  </ItemGroup>
+
 </Project>

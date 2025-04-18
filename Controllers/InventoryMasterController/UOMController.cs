@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace backend.Controllers.InventoryMasterController
 {
 
+
     [Route("api/controllers")]
     [ApiController]
     public class UOMController : ControllerBase

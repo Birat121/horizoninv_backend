@@ -18,12 +18,12 @@ namespace backend.Services.InventoryMasterServices
             _customerRepository = customerRepository;
         }
             
-        public async Task<CustomerMast> CreateCustomer(CustomerMast customer)
+        public async Task<CustomerMast> CreateCustomerAsync(CustomerMast customer)
         {
             return await _customerRepository.CreateCustomerAsync(customer);
         }
 
-        public async Task<CustomerMast> UpdateCustomer(CustomerMast customer)
+        public async Task<CustomerMast> UpdateCustomerAsync(CustomerMast customer)
         {
             return await _customerRepository.UpdateCustomerAsync(customer);
         }
