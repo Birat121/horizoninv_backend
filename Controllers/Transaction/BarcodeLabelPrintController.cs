@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace backend.Controllers.Transaction
 {
 
-    [Route("api/controller")]
+    [Route("api/[controller]")]
     [ApiController]
     public class BarcodeLabelPrintController : ControllerBase
     {

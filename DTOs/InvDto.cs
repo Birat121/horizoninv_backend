@@ -2,9 +2,9 @@
 {
     public class CreateInvGDto
     {
-        public string CustomerName { get; set; }
-        public string ContraName { get; set; }
-        public string vRef { get; set; }
+        public required string CustomerName { get; set; }
+        public required string ContraName { get; set; }
+        public string? vRef { get; set; }
         public string? DocNo { get; set; }
         public decimal SubTotal { get; set; }
         public decimal DiscPer { get; set; }

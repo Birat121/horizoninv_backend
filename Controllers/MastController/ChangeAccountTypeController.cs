@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace backend.Controllers.MastController
 {
 
-    [Route("api/controllers")]
+    [Route("api/[controller]")]
     [ApiController]
     public class ChangeAccountTypeController :ControllerBase
     {

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace backend.Controllers.SystemSecurityController
 {
 
-    [Route("api/controller")]
+    [Route("api/[controller]")]
     [ApiController]
     public class GreetingController: ControllerBase
     {

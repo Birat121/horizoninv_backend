@@ -7,7 +7,7 @@ namespace backend.Controllers.InventoryMasterController
 {
 
 
-    [Route("api/controllers")]
+    [Route("api/[controller]")]
     [ApiController]
     public class UOMController : ControllerBase
     {
