@@ -11,17 +11,18 @@ namespace backend.Services.Transaction
 
     public class InvoiceGenerateService : IInvoiceGenerateService
     {
-        private readonly IInvoiceGenerateRepository _invoiceGenerateRepository;
+        private readonly IInvoiceGenerateRepository _iinvoiceGenerateRepository;
 
-        public InvoiceGenerateService(InvoiceGenerateRepository invoiceGenerateRepository)
+        public InvoiceGenerateService(IInvoiceGenerateRepository invoiceGenerateRepository)
         {
-            _invoiceGenerateRepository = invoiceGenerateRepository;
+            _iinvoiceGenerateRepository = invoiceGenerateRepository;
         }
+
 
         public async Task CreateInvgAsync(CreateInvGDto dto)
         {
-            var cusId = await _invoiceGenerateRepository.GetCustomerIdByNameAsync(dto.CustomerName);
-            var conId = await _invoiceGenerateRepository.GetCustomerIdByNameAsync(dto.ContraName);
+            var cusId = await _iinvoiceGenerateRepository.GetCustomerIdByNameAsync(dto.CustomerName);
+            var conId = await _iinvoiceGenerateRepository.GetCustomerIdByNameAsync(dto.ContraName);
 
 
             if (cusId == null || conId == null)
@@ -47,8 +48,8 @@ namespace backend.Services.Transaction
 
 
             };
-            await _invoiceGenerateRepository.AddAsync(invG);
-            await _invoiceGenerateRepository.SaveChangesAsync();
+            await _iinvoiceGenerateRepository.AddAsync(invG);
+            await _iinvoiceGenerateRepository.SaveChangesAsync();
         }
     }
 }

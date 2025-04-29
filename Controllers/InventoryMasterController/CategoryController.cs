@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace backend.Controllers.InventoryMasterController
 {
 
-    [Route("api/controller")]
+    [Route("api/[controller]")]
     [ApiController]
     public class CategoryController : ControllerBase
     {
@@ -21,9 +21,9 @@ namespace backend.Controllers.InventoryMasterController
         public async Task<string> GenerateNextCatId()
         {
             var lastCategory = await _context.CategoryMasts.OrderByDescending(c => c.CatId).FirstOrDefaultAsync();
-            if (lastCategory != null)
+            if (lastCategory == null || string.IsNullOrEmpty(lastCategory.CatId))
             {
-                return "CT0001";
+                return "CT0001"; // If no category exists
             }
 
             string lastCatId = lastCategory.CatId;
@@ -31,9 +31,11 @@ namespace backend.Controllers.InventoryMasterController
             {
                 return $"CT{(num + 1).ToString("D4")}";
             }
-            return "CT0001";
+            return "CT0001"; // Fallback
         }
 
+
+        [HttpPost("CreateCategory")]
         public async Task<IActionResult> CreateCategory([FromBody] CategoryMast category)
         {
             if (category == null)

@@ -1,17 +1,59 @@
-using backend.Data;
+﻿using backend.Data;
+using backend.Repository.InventoryMasterRepository;
+using backend.Repository.Transaction;
+using backend.Services.InventoryMasterServices;
+using backend.Services.Transaction;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
+
+builder.Services.AddScoped<ICustomerRepository,CustomerRepository>();
+builder.Services.AddScoped<ICustomerServices,CustomerServices>();
+
+builder.Services.AddScoped<IVendorRepository, VendorRepository>();
+builder.Services.AddScoped<IVendorService, VendorService>();
+
+builder.Services.AddScoped<IBgEntryRepository, BgEntryRepository>();
+builder.Services.AddScoped<IBgEntryServices, BgEntryServices>();
+
+builder.Services.AddScoped<IPdcEntryRepository, PdcEntryRepository>();
+builder.Services.AddScoped<IPdcEntryServices, PdcEntryServices>();
+
+// Repository registration
+builder.Services.AddScoped<IInvoiceGenerateRepository, InvoiceGenerateRepository>();
+
+// Service registration
+builder.Services.AddScoped<IInvoiceGenerateService, InvoiceGenerateService>();
+
+
+builder.Services.AddScoped<IMaterialIssueNoteRepository, MaterialIssueNoteRepository>();
+builder.Services.AddScoped<MaterialIssueNoteServices>();
+
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<ICustomerServices, CustomerServices>();
+
+
+// 👇 ADD THIS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        builder =>
+        {
+            builder
+                .AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        });
 });
 
 var app = builder.Build();
@@ -25,8 +67,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+// 👇 ADD THIS
+app.UseCors("AllowAll");
+
 app.UseAuthorization();
 
 app.MapControllers();
 
 app.Run();
+

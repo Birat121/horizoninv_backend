@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace backend.Controllers.SystemSecurityController
 {
 
-    [Route("api/controller")]
+    [Route("api/[controller]")]
     [ApiController]
     public class PrinterSetupController :ControllerBase
 

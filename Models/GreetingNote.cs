@@ -5,6 +5,7 @@ namespace backend.Models;
 
 public partial class GreetingNote
 {
+    
     public decimal TransID { get; set; }
 
     public string? GreetingNote1 { get; set; }

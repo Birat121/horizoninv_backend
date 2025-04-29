@@ -4,7 +4,7 @@ using backend.Data;
 
 namespace backend.Controllers.MastController
 {
-    [Route("api/controller")]
+    [Route("api/[controller]")]
     [ApiController]
     public class CounterSettingController : ControllerBase
     {
