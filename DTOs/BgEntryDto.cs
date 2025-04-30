@@ -3,7 +3,7 @@
     public class BgEntryDto
     {
         public required string PartyName { get; set; }
-        public required string CusId {  get; set; }
+        public  string? CusId {  get; set; }
         public decimal BGAmt { get; set; }
         public string? BGNo { get; set; }
         public required string BankBrName { get; set; }

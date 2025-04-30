@@ -27,10 +27,22 @@ namespace backend.Repository.Transaction
 
         public async Task<string> GetCustomerIdByNameAsync(string customerName)
         {
-            var customer = await _context.CustomerMasts.FirstOrDefaultAsync(c => c.CustomerName == customerName);
+            // Try to find in CustomerMast
+            var customer = await _context.CustomerMasts
+                .FirstOrDefaultAsync(c => c.CustomerName == customerName);
 
-            return customer?.CustomerId;
+            if (customer != null)
+            {
+                return customer.CustomerId;
+            }
+
+            // Try to find in VendorMast
+            var vendor = await _context.VendorMasts
+                .FirstOrDefaultAsync(v => v.VendName == customerName);
+
+            return vendor?.VendId;
         }
+
 
         public async Task SaveChangesAsync()
         {

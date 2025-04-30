@@ -35,7 +35,7 @@ namespace backend.Services.Transaction
 
             var BgEntry = new BGEntry
             {
-
+                CusId = cusId,
                 BankBrName = bgEntry.BankBrName,
                 BGAmt = bgEntry.BGAmt,
                 BankName = bgEntry.BankName,

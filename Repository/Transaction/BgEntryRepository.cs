@@ -29,17 +29,22 @@ namespace backend.Repository.Transaction
 
         public async Task<string?> GetCusIdOrVenIdAsync(string partyName)
         {
-            var customer = await _context.CustomerMasts.FirstOrDefaultAsync(c => c.CustomerName == partyName);
-            if (customer != null)
-            {
-                return customer.CustomerId;
-            }
+            var customerId = await _context.CustomerMasts
+                .Where(c => c.CustomerName == partyName)
+                .Select(c => c.CustomerId)
+                .FirstOrDefaultAsync();
 
-            var vendor = await _context.VendorMasts.FirstOrDefaultAsync(v => v.VendName == partyName);
+            if (!string.IsNullOrEmpty(customerId))
+                return customerId;
 
+            var vendorId = await _context.VendorMasts
+                .Where(v => v.VendName == partyName)
+                .Select(v => v.VendId)
+                .FirstOrDefaultAsync();
 
-            return vendor?.VendId;
+            return vendorId;
         }
+
 
     }
 }

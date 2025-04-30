@@ -15,6 +15,8 @@
         public DateTime TransDate { get; set; }
         public string? EnteredBy { get; set; }
         public string? PanNo { get; set; }
+
+        public decimal AmtWord { get; set; }
     }
 }
 
