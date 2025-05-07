@@ -25,20 +25,33 @@ namespace backend.Repository.Transaction
             await _context.SaveChangesAsync();
         }
 
-        public async Task<string?> GetCusIdOrVenIdAsync(string partyName)
+        
+            public async Task<string?> GetCusIdOrVenIdAsync(string partyName)
         {
-            var customer = await _context.CustomerMasts.FirstOrDefaultAsync(c => c.CustomerName == partyName);
-            if (customer != null)
+            // Try finding customer by name (case-insensitive match is optional)
+            var customer = await _context.CustomerMasts
+                .FirstOrDefaultAsync(c => c.CustomerName.ToLower() == partyName.ToLower());
+
+            if (customer != null && !string.IsNullOrEmpty(customer.CustomerId))
             {
                 return customer.CustomerId;
             }
 
-            var vendor = await _context.VendorMasts.FirstOrDefaultAsync(v => v.VendName == partyName);
-            
-            
-            return vendor?.VendId;
-          
+            // Try finding vendor by name
+            var vendor = await _context.VendorMasts
+                .FirstOrDefaultAsync(v => v.VendName.ToLower() == partyName.ToLower());
 
+            if (vendor != null && !string.IsNullOrEmpty(vendor.VendId))
+            {
+                return vendor.VendId;
+            }
+
+            // Not found in both
+            return null;
         }
+
+
+
     }
 }
+
