@@ -342,3 +342,4 @@ C:\Users\Rosham\Source\Repos\horizoninv_backend\obj\Debug\net8.0\refint\backend.
 C:\Users\Rosham\Source\Repos\horizoninv_backend\obj\Debug\net8.0\backend.pdb
 C:\Users\Rosham\Source\Repos\horizoninv_backend\obj\Debug\net8.0\backend.genruntimeconfig.cache
 C:\Users\Rosham\Source\Repos\horizoninv_backend\obj\Debug\net8.0\ref\backend.dll
+E:\backend\backend\backend\bin\Debug\net8.0\Microsoft.EntityFrameworkCore.InMemory.dll

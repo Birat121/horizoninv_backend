@@ -26,7 +26,25 @@ namespace backend.Repository.InventoryMasterRepository
                 customer.TransID = maxTransId + 1;
                 customer.EntryDate = DateTime.UtcNow;
 
+                string acc1 = $"{customer.CustomerId}Rec";
+
+                var acc = new Acc
+                {
+                    Acc1 = acc1,
+                    Acn = customer.CustomerName,
+                    Acg = "XX06",
+                    Acgg = "XX06",
+                    AclO=0,
+                    AclD=1,
+                    L0 = "XX06",
+                    L1 = acc1,
+                    AcType = "Receivable",
+                    MasterAcType = "Assets",
+                    CreatDate = DateTime.UtcNow,
+                };
+
                 await _context.CustomerMasts.AddAsync(customer);
+                await _context.Accs.AddAsync(acc);
                 await _context.SaveChangesAsync();
                 return customer;
             }

@@ -30,7 +30,25 @@ namespace backend.Repository.InventoryMasterRepository
                 vendor.TransID = maxTransId + 1;
                 vendor.EntryDate = DateTime.UtcNow;
 
+                string acc1 = $"{vendor.VendId}Pay";
+
+                var acc = new Acc
+                {
+                    Acc1 = acc1,
+                    Acn = vendor.VendName,
+                    Acg = "XX15",
+                    Acgg = "XX15",
+                    AclO = 0,
+                    AclD = 1,
+                    L0 = "XX15",
+                    L1 = acc1,
+                    AcType = "Liabilities",
+                    MasterAcType = "Liabilities",
+                    CreatDate = DateTime.UtcNow,
+                };
+
                 await _context.VendorMasts.AddAsync(vendor);
+                await _context.Accs.AddAsync(acc);
                 await _context.SaveChangesAsync();
                 return vendor;
             }

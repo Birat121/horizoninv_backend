@@ -8,19 +8,25 @@ namespace backend.Repository.Transaction
     {
         Task<string?> GetProductIdByNameAsync(string productName);
         Task<decimal> GetSaleRateByProductIdAsync(string productId);
+        Task<decimal> GetIssRateByProductIdAsync(string productId);
         Task<(string UOM, decimal UOMQty)> GetUOMInfoAsync(string productId);
         Task AddMaterialIssueAsync(MaterialIssue materialIssue);
+        Task SaveChangesAsync();
     }
+
     public class MaterialIssueNoteRepository : IMaterialIssueNoteRepository
     {
         private readonly ApplicationDbContext _context;
 
-        public MaterialIssueNoteRepository(ApplicationDbContext context) {
-            _context = context; }
+        public MaterialIssueNoteRepository(ApplicationDbContext context)
+        {
+            _context = context;
+        }
 
         public async Task<string?> GetProductIdByNameAsync(string productName)
         {
-            return await _context.ProductMasters.Where(p => p.ProductID == productName)
+            return await _context.ProductMasters
+                .Where(p => p.ProductName == productName)
                 .Select(p => p.ProductID)
                 .FirstOrDefaultAsync();
         }
@@ -29,7 +35,15 @@ namespace backend.Repository.Transaction
         {
             return (decimal)await _context.ProductMasters
                 .Where(p => p.ProductID == productId)
-                .Select (p => p.SaleRate)
+                .Select(p => p.WholeSalePcs)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<decimal> GetIssRateByProductIdAsync(string productId)
+        {
+            return (decimal)await _context.ProductMasters
+                .Where(p => p.ProductID == productId)
+                .Select(p => p.UnitRate)
                 .FirstOrDefaultAsync();
         }
 
@@ -40,12 +54,17 @@ namespace backend.Repository.Transaction
                 .Select(u => new { u.UOM, u.UOMQty })
                 .FirstOrDefaultAsync();
 
-            return ((string UOM, decimal UOMQty))(data == null ? ("", 0) : (data.UOM,data.UOMQty));
+            return ((string UOM, decimal UOMQty))(data == null ? ("", 0) : (data.UOM, data.UOMQty));
         }
 
         public async Task AddMaterialIssueAsync(MaterialIssue materialIssue)
         {
             _context.MaterialIssues.Add(materialIssue);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task SaveChangesAsync()
+        {
             await _context.SaveChangesAsync();
         }
     }

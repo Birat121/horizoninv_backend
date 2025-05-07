@@ -3,9 +3,7 @@ using backend.Models;
 using backend.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+
 
 namespace backend.Controllers.InventoryMasterController
 {
@@ -23,24 +21,22 @@ namespace backend.Controllers.InventoryMasterController
         // Helper method to generate SubCatID
         private async Task<string> GenerateNextSubCatId(string catId)
         {
-            var lastSubCategory = await _context.SubCategoryMasts
-                .Where(sc => sc.CatId == catId)
-                .OrderByDescending(sc => sc.SubCatID)
-                .FirstOrDefaultAsync();
+            var prefix = $"{catId}-";
 
-            if (lastSubCategory == null)
-            {
-                return $"{catId:000}-001"; // If no subcategory exists for the category
-            }
+            var existingSuffixes = await _context.SubCategoryMasts
+                .Where(sc => sc.SubCatID.StartsWith(prefix))
+                .Select(sc => sc.SubCatID.Substring(prefix.Length))
+                .ToListAsync();
 
-            string lastSubCatId = lastSubCategory.SubCatID;
-            if (lastSubCatId.StartsWith($"{catId:000}-") && int.TryParse(lastSubCatId.Substring(4), out int num))
-            {
-                return $"{catId:000}-{(num + 1):000}";
-            }
+            int max = existingSuffixes
+                .Select(s => int.TryParse(s, out var n) ? n : 0)
+                .DefaultIfEmpty(0)
+                .Max();
 
-            return $"{catId:000}-001"; // Fallback if format doesn't match
+            var nextSuffix = (max + 1).ToString().PadLeft(3, '0');
+            return prefix + nextSuffix;
         }
+
 
         // POST: api/SubCategory/createSubCategory
         [HttpPost("createSubCategory")]
@@ -108,7 +104,7 @@ namespace backend.Controllers.InventoryMasterController
             existingSubCategory.CatId = category.CatId;
             existingSubCategory.SubCatName = subCategoryDto.SubCatName;
             existingSubCategory.VatRate = category.VatRate; // Update VatRate if category changed
-            existingSubCategory.ModifyDate = DateTime.UtcNow;
+            
 
             _context.SubCategoryMasts.Update(existingSubCategory);
             await _context.SaveChangesAsync();

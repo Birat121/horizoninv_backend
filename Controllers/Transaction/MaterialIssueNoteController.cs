@@ -8,11 +8,11 @@ namespace backend.Controllers.Transaction
     [ApiController]
     public class MaterialIssueNoteController :ControllerBase
     {
-        private readonly MaterialIssueNoteServices _services;
+        private readonly IMaterialIssueNoteServices _service;
 
-        public MaterialIssueNoteController(MaterialIssueNoteServices services)
+        public MaterialIssueNoteController(IMaterialIssueNoteServices service)
         {
-            _services = services;
+            _service = service;
         }
 
         [HttpPost("createMaterial")]
@@ -20,7 +20,7 @@ namespace backend.Controllers.Transaction
         {
             try
             {
-                await _services.AddMaterialIssueNote(materialIssueDto);
+                await _service.AddMaterialIssueNote(materialIssueDto);
                 return Ok(new { message = "Material Issue created successfully." });
 
             }

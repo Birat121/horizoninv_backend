@@ -37,7 +37,7 @@ builder.Services.AddScoped<IInvoiceGenerateService, InvoiceGenerateService>();
 
 
 builder.Services.AddScoped<IMaterialIssueNoteRepository, MaterialIssueNoteRepository>();
-builder.Services.AddScoped<MaterialIssueNoteServices>();
+builder.Services.AddScoped<IMaterialIssueNoteServices, MaterialIssueNoteServices>();
 
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<ICustomerServices, CustomerServices>();

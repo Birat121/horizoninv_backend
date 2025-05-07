@@ -1,11 +1,15 @@
 ﻿using backend.DTOs;
 using backend.Models;
 using backend.Repository.Transaction;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace backend.Services.Transaction
 {
-    public class MaterialIssueNoteServices
+    public interface IMaterialIssueNoteServices
+    {
+        Task AddMaterialIssueNote(MaterialIssueDto materialIssue);
+    }
+
+    public class MaterialIssueNoteServices : IMaterialIssueNoteServices
     {
         private readonly IMaterialIssueNoteRepository _repository;
 
@@ -16,18 +20,29 @@ namespace backend.Services.Transaction
 
         public async Task AddMaterialIssueNote(MaterialIssueDto materialIssue)
         {
-            var productId = await _repository.GetProductIdByNameAsync(materialIssue.ProductName) ?? throw new Exception("Product Not found");
-            var saleRate = await _repository.GetSaleRateByProductIdAsync(productId);
-            var (uom, uomQty) = await _repository.GetUOMInfoAsync(productId);
-            var totalCost = saleRate * materialIssue.IssQty;
+            // Get Product ID
+            var productId = await _repository.GetProductIdByNameAsync(materialIssue.ProductName);
+            if (productId == null)
+                throw new Exception("Product not found");
 
+            // Get Sale Rate and UOM info
+            var saleRate = await _repository.GetSaleRateByProductIdAsync(productId);
+            var issRate = await _repository.GetIssRateByProductIdAsync(productId);
+            var (uom, uomQty) = await _repository.GetUOMInfoAsync(productId);
+
+            // Calculate Total Cost
+            var totalCost = issRate * materialIssue.IssQty;
+
+            // Determine branch from/to based on transaction type
             string branchFrom = materialIssue.TransactionType == "RECEIVE" ? materialIssue.BranchTo : "100";
             string branchTo = materialIssue.TransactionType == "RECEIVE" ? "100" : materialIssue.BranchTo;
 
+            // Create entity
             var issue = new MaterialIssue
             {
                 ProductID = productId,
                 SaleRate = saleRate,
+                IssRate = issRate,
                 IssQty = materialIssue.IssQty,
                 TotalCost = totalCost,
                 UOM = uom,
@@ -35,8 +50,11 @@ namespace backend.Services.Transaction
                 BranchFrom = branchFrom,
                 BranchTo = branchTo,
                 EntryDate = materialIssue.EntryDate,
-                IssDate = materialIssue.IssDate
+                IssDate = materialIssue.IssDate,
+                ISP= materialIssue.ISP
+                
             };
+
             await _repository.AddMaterialIssueAsync(issue);
         }
     }

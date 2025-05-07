@@ -7,31 +7,33 @@ namespace backend.Controllers.Transaction.ExcelImport
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductInfoController : ControllerBase
+    public class OpeningBalanceController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
         private readonly ICsvImportService _csvService;
 
-        public ProductInfoController(ApplicationDbContext context, ICsvImportService csvService)
+        public OpeningBalanceController(ApplicationDbContext context, ICsvImportService csvService)
         {
             _context = context;
             _csvService = csvService;
         }
 
-        [HttpPost("productimport")]
+        [HttpPost("importOpeningbal")]
         public async Task<IActionResult> Import(IFormFile file)
         {
             try
             {
-                var records = await _csvService.ParseCsvAsync<Ex_PdInfo>(file);
+                var records = await _csvService.ParseCsvAsync<Ex_OpbBal>(file);
 
                 foreach (var item in records)
+                {
                     item.EntSysDate = DateTime.Now;
+                }
 
-                await _context.Ex_PdInfos.AddRangeAsync(records);
+                await _context.Ex_OpbBals.AddRangeAsync(records);
                 await _context.SaveChangesAsync();
 
-                return Ok(new { message = "Product info imported", count = records.Count });
+                return Ok(new { message = "Opening balances imported", count = records.Count });
             }
             catch (Exception ex)
             {
@@ -40,4 +42,3 @@ namespace backend.Controllers.Transaction.ExcelImport
         }
     }
 }
-
