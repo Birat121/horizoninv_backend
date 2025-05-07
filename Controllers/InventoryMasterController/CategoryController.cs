@@ -5,18 +5,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace backend.Controllers.InventoryMasterController
 {
-
     [Route("api/[controller]")]
     [ApiController]
     public class CategoryController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-        
+
         public CategoryController(ApplicationDbContext context)
         {
             _context = context;
         }
-
 
         public async Task<string> GenerateNextCatId()
         {
@@ -34,7 +32,6 @@ namespace backend.Controllers.InventoryMasterController
             return "CT0001"; // Fallback
         }
 
-
         [HttpPost("CreateCategory")]
         public async Task<IActionResult> CreateCategory([FromBody] CategoryMast category)
         {
@@ -46,10 +43,11 @@ namespace backend.Controllers.InventoryMasterController
             category.CatId = await GenerateNextCatId();
             category.EntryDate = DateTime.UtcNow;
 
-            bool catExists = await _context.CategoryMasts.AnyAsync(c => c.CatId == category.CatId);
+            // Check for duplicate category name
+            bool catExists = await _context.CategoryMasts.AnyAsync(c => c.CatName == category.CatName);
             if (catExists)
             {
-                return Conflict("Category name already existed");
+                return Conflict("Category name already exists");
             }
 
             _context.CategoryMasts.Add(category);
@@ -57,9 +55,8 @@ namespace backend.Controllers.InventoryMasterController
             return Ok();
         }
 
-
         [HttpPut("UpdateCategory/{id}")]
-        public async Task<IActionResult> UpdateCategory(decimal id, [FromBody] CategoryMast category)
+        public async Task<IActionResult> UpdateCategory(int id, [FromBody] CategoryMast category)
         {
             if (category == null || id != category.TransID)
             {
@@ -70,10 +67,9 @@ namespace backend.Controllers.InventoryMasterController
             if (existingCategory == null)
             {
                 return NotFound("Category not existed");
-
             }
 
-            bool catExists = await _context.CategoryMasts.AnyAsync(c => c.CatId == category.CatId && c.TransID != id);
+            bool catExists = await _context.CategoryMasts.AnyAsync(c => c.CatName == category.CatName && c.TransID != id);
             if (catExists)
             {
                 return Conflict("Category name already exists");

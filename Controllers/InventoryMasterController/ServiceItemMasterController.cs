@@ -114,7 +114,7 @@ namespace backend.Controllers.InventoryMasterController
             _context.Service_Is.Update(existingService);
             await _context.SaveChangesAsync();
 
-            return Ok(existingService);
+            return Ok(existingService); 
         }
     }
 }

@@ -23,31 +23,32 @@ namespace backend.Controllers.MastController
         [HttpPost("CreateDepartment")]
         public async Task<IActionResult> SaveDepartment([FromBody] DepartmentMast department)
         {
-            if (department == null)
+            if (department == null || string.IsNullOrWhiteSpace(department.DeptName))
             {
                 return BadRequest("Invalid department data");
             }
 
-            // Get the last DeptId and increment it
             var lastDept = await _context.DepartmentMasts
                                          .OrderByDescending(d => d.DeptId)
                                          .FirstOrDefaultAsync();
 
             int newDeptId = (lastDept != null && int.TryParse(lastDept.DeptId, out int lastId))
                             ? lastId + 1
-                            : 100;  // Start from 100 if no departments exist
+                            : 100;
 
             department.DeptId = newDeptId.ToString();
             department.EnteredDate = DateTime.UtcNow;
+            department.EnteredBy = "system"; // set this dynamically as needed
+            department.EnteredSys = Environment.MachineName; // or some identifier
 
-            // Check if department name already exists
-            bool deptExists = await _context.DepartmentMasts.AnyAsync(d => d.DeptName == department.DeptName);
+            bool deptExists = await _context.DepartmentMasts
+                                            .AnyAsync(d => d.DeptName == department.DeptName);
+
             if (deptExists)
             {
                 return Conflict("Department name already exists");
             }
 
-            // Save to the database
             _context.DepartmentMasts.Add(department);
             await _context.SaveChangesAsync();
 

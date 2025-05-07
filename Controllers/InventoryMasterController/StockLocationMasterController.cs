@@ -21,7 +21,13 @@ namespace backend.Controllers.InventoryMasterController
         {
             if (stockloc == null)
             {
-                return BadRequest("Not found");
+                return BadRequest("Location data is missing.");
+            }
+
+            // Check for required fields
+            if (string.IsNullOrEmpty(stockloc.LocName) || string.IsNullOrEmpty(stockloc.BrNo))
+            {
+                return BadRequest("Location Name and Branch Number are required.");
             }
 
             // Generate LocId if it's not provided
@@ -30,18 +36,30 @@ namespace backend.Controllers.InventoryMasterController
                 stockloc.LocId = await GenerateNextLocId();
             }
 
+            // Check for duplicate Branch No
             bool duplicate = await _context.StkLocs.AnyAsync(st => st.BrNo == stockloc.BrNo);
             if (duplicate)
             {
-                return BadRequest("Already existed");
+                return BadRequest("Stock location with this Branch Number already exists.");
             }
 
             stockloc.EntDate = DateTime.UtcNow;
 
+            // Save to database
             _context.StkLocs.Add(stockloc);
-            await _context.SaveChangesAsync();
-            return Ok();
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception to debug
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+
+            return Ok(stockloc);
         }
+
 
         [HttpPut("UpdateStockLoc/{id}")]
         public async Task<IActionResult> UpdateStockLocation([FromBody] StkLoc updatestkLoc, decimal id)
