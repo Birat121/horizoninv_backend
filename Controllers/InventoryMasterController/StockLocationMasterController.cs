@@ -16,6 +16,23 @@ namespace backend.Controllers.InventoryMasterController
             _context = context;
         }
 
+        // Fetch the latest LocId (used for generating next LocId)
+        [HttpGet("GetLatestLocId")]
+        public async Task<IActionResult> GetLatestLocId()
+        {
+            var lastLoc = await _context.StkLocs
+                .OrderByDescending(s => s.LocId)
+                .FirstOrDefaultAsync();
+
+            if (lastLoc == null)
+            {
+                return Ok(new { LocId = "StkL00000" }); // If no locations exist, return a base LocId.
+            }
+
+            return Ok(new { lastLoc.LocId }); // Return the latest LocId in the response.
+        }
+
+
         [HttpPost("CreateStockLoc")]
         public async Task<IActionResult> CreateStockLocation([FromBody] StkLoc stockloc)
         {
@@ -24,11 +41,7 @@ namespace backend.Controllers.InventoryMasterController
                 return BadRequest("Location data is missing.");
             }
 
-            // Check for required fields
-            if (string.IsNullOrEmpty(stockloc.LocName) || string.IsNullOrEmpty(stockloc.BrNo))
-            {
-                return BadRequest("Location Name and Branch Number are required.");
-            }
+            
 
             // Generate LocId if it's not provided
             if (string.IsNullOrEmpty(stockloc.LocId))

@@ -22,8 +22,25 @@ namespace backend.Repository.InventoryMasterRepository
         {
             try
             {
-                var maxTransId = await _context.CustomerMasts.MaxAsync(v => (decimal?)v.TransID) ?? 0;
-                customer.TransID = maxTransId + 1;
+                // Generate next CustomerId
+                var lastCustomer = await _context.CustomerMasts
+                    .Where(c => c.CustomerId.StartsWith("CS"))
+                    .OrderByDescending(c => c.CustomerId)
+                    .FirstOrDefaultAsync();
+
+                int nextNumber = 1;
+
+                if (lastCustomer != null && !string.IsNullOrEmpty(lastCustomer.CustomerId))
+                {
+                    string numberPart = lastCustomer.CustomerId.Substring(2); // Get the numeric part after "CS"
+                    if (int.TryParse(numberPart, out int parsedNumber))
+                    {
+                        nextNumber = parsedNumber + 1;
+                    }
+                }
+
+                string nextCustomerId = $"CS{nextNumber.ToString("D4")}";
+                customer.CustomerId = nextCustomerId;
                 customer.EntryDate = DateTime.UtcNow;
 
                 string acc1 = $"{customer.CustomerId}Rec";
@@ -34,8 +51,8 @@ namespace backend.Repository.InventoryMasterRepository
                     Acn = customer.CustomerName,
                     Acg = "XX06",
                     Acgg = "XX06",
-                    AclO=0,
-                    AclD=1,
+                    AclO = 0,
+                    AclD = 1,
                     L0 = "XX06",
                     L1 = acc1,
                     AcType = "Receivable",
@@ -46,15 +63,16 @@ namespace backend.Repository.InventoryMasterRepository
                 await _context.CustomerMasts.AddAsync(customer);
                 await _context.Accs.AddAsync(acc);
                 await _context.SaveChangesAsync();
+
                 return customer;
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error creating vendor: {ex.Message}");
+                Console.WriteLine($"Error creating customer: {ex.Message}");
                 throw;
             }
-
         }
+
         public async Task<CustomerMast> UpdateCustomerAsync(CustomerMast customer)
         {
             try

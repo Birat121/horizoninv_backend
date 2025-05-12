@@ -1,6 +1,7 @@
 ﻿using backend.Data;
 using backend.Repository.InventoryMasterRepository;
 using backend.Repository.Transaction;
+using backend.Services;
 using backend.Services.InventoryMasterServices;
 using backend.Services.Transaction;
 using Microsoft.EntityFrameworkCore;
@@ -41,6 +42,8 @@ builder.Services.AddScoped<IMaterialIssueNoteServices, MaterialIssueNoteServices
 
 builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
 builder.Services.AddScoped<ICustomerServices, CustomerServices>();
+
+builder.Services.AddScoped<ICsvImportService, CsvImportService>();
 
 
 // 👇 ADD THIS

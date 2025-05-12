@@ -38,6 +38,16 @@ namespace backend.Controllers.InventoryMasterController
         }
 
 
+
+        [HttpGet("categoryNames")]
+        public async Task<IActionResult> GetCategoryNames()
+        {
+            var categoryNames = await _context.CategoryMasts
+                .Select(c => c.CatName)
+                .ToListAsync();
+
+            return Ok(categoryNames);
+        }
         // POST: api/SubCategory/createSubCategory
         [HttpPost("createSubCategory")]
         public async Task<IActionResult> CreateSubCategoryAsync([FromBody] SubCategoryDto subCategoryDto)

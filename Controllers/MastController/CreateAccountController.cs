@@ -17,6 +17,34 @@ namespace backend.Controllers.MastController
             _context = context;
         }
 
+        [HttpGet("getNextGroupCode")]
+        public async Task<IActionResult> GetNextGroupCode()
+        {
+            // Get all existing Acc1 values that start with "HX"
+            var existingCodes = await _context.Accs
+                .Where(a => a.Acc1.StartsWith("HX"))
+                .Select(a => a.Acc1)
+                .ToListAsync();
+
+            int maxNumber = 0;
+
+            foreach (var code in existingCodes)
+            {
+                var numericPart = code.Substring(2); // Remove "HX"
+                if (int.TryParse(numericPart, out int num))
+                {
+                    if (num > maxNumber)
+                        maxNumber = num;
+                }
+            }
+
+            int nextNumber = maxNumber + 1;
+            string nextCode = $"HX{nextNumber}";
+
+            return Ok(new { nextCode });
+        }
+
+
         [HttpPost("createAcc")]
 
         public async Task<IActionResult> CreateAccount([FromBody] ChangeAccountTypeDto accDto)
@@ -32,6 +60,8 @@ namespace backend.Controllers.MastController
                 return Conflict("Account already exists with the provided Acc and Acn.");
             }
 
+            
+
             var newAccount = new Acc
             {
                 Acc1 = accDto.Acc,
@@ -41,6 +71,7 @@ namespace backend.Controllers.MastController
                 AclD = 0,
                 L0 = accDto.Acc,
                 MasterAcType = accDto.Actype,
+                CreatDate= DateTime.Now
 
             };
 
@@ -102,9 +133,47 @@ namespace backend.Controllers.MastController
         }
 
 
+
+        [HttpGet("getGroupAccounts")]
+        public async Task<IActionResult> GetGroupAccounts()
+        {
+            var groupAccounts = await _context.Accs
+                .Where(a => a.AclO == 1)
+                .Select(a => a.Acn)
+                .Distinct()
+                .ToListAsync();
+
+            return Ok(groupAccounts);
+        }
+
+        [HttpGet("getAccountType")]
+        public async Task<IActionResult> GetAccountType([FromQuery] string groupName)
+        {
+            if (string.IsNullOrEmpty(groupName))
+            {
+                return BadRequest("Group name is required.");
+            }
+
+            var accountType = await _context.Accs
+                .Where(a => a.AclO == 1 && a.Acn == groupName)
+                .Select(a => a.AcType)
+                .FirstOrDefaultAsync();
+
+            if (accountType == null)
+            {
+                return NotFound("Account type not found for the given group name.");
+            }
+
+            return Ok(accountType);
+        }
+
+
+
+
+
         [HttpPost("createSubGroup")]
 
-        public async Task<IActionResult> createSubGroup([FromBody] SubGroupDto subGroup)
+        public async Task<IActionResult> CreateSubGroup([FromBody] SubGroupDto subGroup)
         {
             if (string.IsNullOrWhiteSpace(subGroup.ParentGroupName) || string.IsNullOrWhiteSpace(subGroup.AccountType) || string.IsNullOrWhiteSpace(subGroup.SubGroupName))
                 return BadRequest("All fields are required.");
@@ -127,10 +196,12 @@ namespace backend.Controllers.MastController
                 MasterAcType = parent.MasterAcType,
                 AclO = 0,
                 AclD = 1,
-                Acg = parent.Acg,
-                Acgg = parent.Acgg,
+                Acg = parent.Acc1,
+                Acgg = parent.Acc1,
                 L0 = parent.Acc1,
+                L1 =newAcc1,
                 Acc1 = newAcc1,
+                CreatDate = DateTime.Now
 
             };
 

@@ -14,4 +14,6 @@
         public DateTime TrDt { get; set; }
         public required string TransNo { get; set; }
     }
+
+    
 }

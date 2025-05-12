@@ -30,5 +30,35 @@ namespace backend.Controllers.Transaction
             }
         }
 
+        [HttpGet("getParties")]
+        public async Task<IActionResult> GetCombinedPartyList()
+        {
+            try
+            {
+                var partyList = await _services.GetCombinedPartyListAsync();
+                return Ok(partyList);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("getNextTransactionNo")]
+        public async Task<IActionResult> GetNextTransactionNo()
+        {
+            try
+            {
+                var nextNo = await _services.GetNextTransactionNoAsync();
+                return Ok(nextNo);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Failed to generate transaction number: {ex.Message}");
+            }
+        }
+
+
+
     }
 }

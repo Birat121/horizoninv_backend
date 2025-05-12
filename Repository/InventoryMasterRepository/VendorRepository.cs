@@ -25,11 +25,30 @@ namespace backend.Repository.InventoryMasterRepository
         {
             try
             {
-                // Ensure TransID is handled correctly if not an identity column
-                var maxTransId = await _context.VendorMasts.MaxAsync(v => (decimal?)v.TransID) ?? 0;
-                vendor.TransID = maxTransId + 1;
+
+                // Generate next VendId (format: v00001)
+                var lastVendor = await _context.VendorMasts
+                    .Where(v => v.VendId.StartsWith("V"))
+                    .OrderByDescending(v => v.VendId)
+                    .FirstOrDefaultAsync();
+
+                int nextNumber = 1;
+
+                if (lastVendor != null && !string.IsNullOrEmpty(lastVendor.VendId))
+                {
+                    string numberPart = lastVendor.VendId.Substring(1); // Get numeric part after "v"
+                    if (int.TryParse(numberPart, out int parsedNumber))
+                    {
+                        nextNumber = parsedNumber + 1;
+                    }
+                }
+
+                string nextVendId = $"V{nextNumber.ToString("D5")}"; // e.g., v00001
+                vendor.VendId = nextVendId;
+                // Ensure you are not setting the identity column (TransID) manually
                 vendor.EntryDate = DateTime.UtcNow;
 
+                // Create the associated Acc entry
                 string acc1 = $"{vendor.VendId}Pay";
 
                 var acc = new Acc
@@ -47,14 +66,18 @@ namespace backend.Repository.InventoryMasterRepository
                     CreatDate = DateTime.UtcNow,
                 };
 
-                await _context.VendorMasts.AddAsync(vendor);
+                // Add vendor and associated account record
+                await _context.VendorMasts.AddAsync(vendor); // Don't manually set TransID
                 await _context.Accs.AddAsync(acc);
+
+                // Save changes
                 await _context.SaveChangesAsync();
+
                 return vendor;
             }
             catch (Exception ex)
             {
-                // Log the exception properly (use a logging library)
+                // Log the exception properly (use a logging library in real-world applications)
                 Console.WriteLine($"Error creating vendor: {ex.Message}");
                 throw;
             }
@@ -67,7 +90,7 @@ namespace backend.Repository.InventoryMasterRepository
                 var existingVendor = await _context.VendorMasts.FindAsync(vendor.TransID);
                 if (existingVendor == null) return null;
 
-                // Updating fields
+                // Updating fields for existing vendor
                 existingVendor.VendName = vendor.VendName;
                 existingVendor.Add1 = vendor.Add1;
                 existingVendor.CityName = vendor.CityName;
@@ -81,6 +104,7 @@ namespace backend.Repository.InventoryMasterRepository
                 existingVendor.ModifyDate = DateTime.UtcNow;
                 existingVendor.BGAmt = vendor.BGAmt;
 
+                // Save changes to the database
                 await _context.SaveChangesAsync();
                 return existingVendor;
             }
