@@ -80,7 +80,7 @@ namespace backend.Services.Transaction
 
         public async Task<string> GetNextTransactionNoAsync()
         {
-            var lastEntry = await _context.BGEntries
+            var lastEntry = await _context.PDCEntries
                 .OrderByDescending(e => e.TransNo)
                 .FirstOrDefaultAsync();
 
@@ -98,6 +98,7 @@ namespace backend.Services.Transaction
             string nextTransNo = $"PDC10081-{nextNo:D8}";
             return nextTransNo;
         }
+
 
 
 

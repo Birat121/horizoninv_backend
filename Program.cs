@@ -45,6 +45,9 @@ builder.Services.AddScoped<ICustomerServices, CustomerServices>();
 
 builder.Services.AddScoped<ICsvImportService, CsvImportService>();
 
+builder.Services.AddScoped<IJournalVoucherRepository, JournalVoucherRepository>();
+builder.Services.AddScoped<IJournalVoucherService, JournalVoucherService>();
+
 
 // 👇 ADD THIS
 builder.Services.AddCors(options =>

@@ -30,11 +30,11 @@ namespace backend.Services.Transaction
             if (totalDr != totalCr)
                 throw new ArgumentException("Total debit and credit amounts must be equal.");
 
-            
+
 
             var jvns = entryDto.Entries.Select(e => new JVN
             {
-                FName="JournalVoucher",
+                FName = "JournalVoucher",
                 TransDate = entryDto.TransDate,
                 Acc = e.Acc,
                 Dr = e.Dr,
@@ -43,15 +43,16 @@ namespace backend.Services.Transaction
                 EntryBy = entryDto.EntryBy,
                 EnteredDate = DateTime.Now,
                 DocNo = entryDto.DocNo?.ToString(), // DocNo as string (adjust if int in DB)
-                VoucherRef = "JV"
+                VoucherRef = entryDto.VoucherRef  // ✅ Use the actual value passed from frontend
             }).ToList();
+
 
             await _journalVoucherRepository.AddJournalEntriesAsync(jvns);
         }
 
         public async Task CreateSingleSideVoucherAsync(SingleJVNEntryDto dto, string voucherType)
         {
-            if (dto == null || dto.Amount <=0)
+            if (dto == null || dto.Amount <= 0)
                 throw new ArgumentException("Valid amount is required.");
 
             if (string.IsNullOrWhiteSpace(dto.ContraAcc) || string.IsNullOrWhiteSpace(dto.Acc))
@@ -59,41 +60,61 @@ namespace backend.Services.Transaction
 
             int docNo = dto.DocNo ?? await _journalVoucherRepository.GenerateDocNoAsync(voucherType);
 
-            bool isReceipt = voucherType == "RV";
-            decimal drAmount = isReceipt ? dto.Amount : 0;
-            decimal crAmount = isReceipt ? 0 : dto.Amount;
+            decimal drAmount = 0;
+            decimal crAmount = 0;
+            string fName;
 
-            
+            // Determine debit/credit and FName based on voucher type
+            if (voucherType == "RV")
+            {
+                drAmount = dto.Amount;
+                crAmount = 0;
+                fName = "ReceiptVoucher";
+            }
+            else if (voucherType == "PV")
+            {
+                drAmount = 0;
+                crAmount = dto.Amount;
+                fName = "PaymentVoucher";
+            }
+            else
+            {
+                throw new ArgumentException("Invalid voucher type");
+            }
+
             var entry = new JVN
             {
                 TransDate = dto.TransDate,
-                Acc= dto.Acc,
+                Acc = dto.Acc,
                 Dr = drAmount,
                 Cr = crAmount,
-                Narration= dto.Narration,
-                EntryBy=dto.EntryBy,
+                Narration = dto.Narration,
+                EntryBy = dto.EntryBy,
                 EnteredDate = DateTime.Now,
-                DocNo= docNo.ToString(),
-                VoucherRef = voucherType
-
+                DocNo = docNo.ToString(),
+                VoucherRef = dto.VoucherRef,
+                FName = fName
             };
 
             var contra = new JVN
             {
                 TransDate = dto.TransDate,
                 Acc = dto.ContraAcc,
-                Dr = drAmount,
-                Cr = crAmount,
+                Dr = crAmount,
+                Cr = drAmount,
                 Narration = dto.Narration,
                 EntryBy = dto.EntryBy,
                 EnteredDate = DateTime.Now,
-
                 DocNo = docNo.ToString(),
-                VoucherRef = voucherType
+                VoucherRef = dto.VoucherRef,
+                FName = fName
             };
 
-            await _journalVoucherRepository.AddJournalEntriesAsync(new List<JVN> { entry,contra});
+            await _journalVoucherRepository.AddJournalEntriesAsync(new List<JVN> { entry, contra });
         }
+
+
+
     }
 }
 

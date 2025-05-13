@@ -21,14 +21,14 @@ namespace backend.Controllers.Transaction
             try
             {
                 var result = await _services.CreatePDCEntryAsync(pDCEntry);
-                return Ok();
+                return Ok(new { message = "PDC Entry saved successfully." });
             }
-
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
         }
+
 
         [HttpGet("getParties")]
         public async Task<IActionResult> GetCombinedPartyList()
