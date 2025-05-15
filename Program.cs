@@ -48,6 +48,9 @@ builder.Services.AddScoped<ICsvImportService, CsvImportService>();
 builder.Services.AddScoped<IJournalVoucherRepository, JournalVoucherRepository>();
 builder.Services.AddScoped<IJournalVoucherService, JournalVoucherService>();
 
+builder.Services.AddScoped<IInventoryItemMasterRepository, InventoryItemMasterRepository>();
+builder.Services.AddScoped<IInventoryItemMasterServices, InventoryItemMasterServices>();
+
 
 // 👇 ADD THIS
 builder.Services.AddCors(options =>

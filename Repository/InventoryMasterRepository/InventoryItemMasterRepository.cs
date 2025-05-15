@@ -12,6 +12,9 @@ namespace backend.Repository.InventoryMasterRepository
         Task<string> GetSubCatIdBySubCatNameAsync(string subcatName);
         Task<UomMast> GetUOMByNameAsync(string uomName);
 
+        Task<string> GenerateNewProductIdAsync();
+
+
 
 
     }
@@ -48,6 +51,20 @@ namespace backend.Repository.InventoryMasterRepository
         public async Task<UomMast> GetUOMByNameAsync(string uomName)
         {
             return await _context.UomMasts.FirstOrDefaultAsync(u => u.UomDesc == uomName);
+        }
+
+        public async Task<string> GenerateNewProductIdAsync()
+        {
+            var lastProduct = await _context.ProductMasters
+                .OrderByDescending(p => p.ProductID)
+                .FirstOrDefaultAsync();
+
+            if (lastProduct == null || string.IsNullOrEmpty(lastProduct.ProductID))
+                return "PID-0001";
+
+            var lastIdNumber = int.Parse(lastProduct.ProductID.Split('-')[1]);
+            var newIdNumber = lastIdNumber + 1;
+            return $"PID-{newIdNumber:D4}";
         }
 
 

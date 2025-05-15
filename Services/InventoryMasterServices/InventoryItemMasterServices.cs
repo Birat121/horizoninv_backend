@@ -22,6 +22,9 @@ namespace backend.Services.InventoryMasterServices
         {
             try
             {
+                // Generate ProductID
+                var newProductId = await _inventoryItemMasterRepository.GenerateNewProductIdAsync();
+
                 // Convert names to IDs
                 var catId = await _inventoryItemMasterRepository.GetCatIdByCatNameAsync(productDto.ProductMastDTO.CatName);
                 var subCatId = await _inventoryItemMasterRepository.GetSubCatIdBySubCatNameAsync(productDto.ProductMastDTO.SubCatName);
@@ -30,10 +33,13 @@ namespace backend.Services.InventoryMasterServices
                 if (string.IsNullOrEmpty(catId) || string.IsNullOrEmpty(subCatId) || uomData == null)
                     return false;
 
-                // VAT rate based on Category ID
                 var vatRate = await _inventoryItemMasterRepository.GetVateRateByCategoryIdAsync(catId);
 
-                // Set additional values
+                // Set final values in DTO
+                productDto.ProductMastDTO.ProductId = newProductId;
+                productDto.productUOMDTO.ProductId = newProductId;
+                productDto.productUOMDTO.Barcode = newProductId;
+
                 productDto.ProductMastDTO.CatId = catId;
                 productDto.ProductMastDTO.SubCatId = subCatId;
                 productDto.ProductMastDTO.VatRate = vatRate;
@@ -41,9 +47,10 @@ namespace backend.Services.InventoryMasterServices
                 productDto.ProductMastDTO.SaleRate = productDto.productUOMDTO.UnitSale;
                 productDto.ProductMastDTO.WholeSalePcs = productDto.productUOMDTO.WS;
 
+                // Create entities
                 var productMaster = new ProductMaster
                 {
-                    ProductID = productDto.ProductMastDTO.ProductId,
+                    ProductID = newProductId,
                     ProductName = productDto.ProductMastDTO.ProductName,
                     CatID = catId,
                     SubCatID = subCatId,
@@ -57,8 +64,8 @@ namespace backend.Services.InventoryMasterServices
 
                 var productUOM = new ProductUOM
                 {
-                    ProductID = productDto.productUOMDTO.ProductId,
-                    Barcode = productDto.productUOMDTO.Barcode,
+                    ProductID = newProductId,
+                    Barcode = newProductId,
                     UOM = uomData.UomDesc,
                     UOMQty = uomData.UomQty,
                     UnitRate = productDto.productUOMDTO.UnitRate,
@@ -78,6 +85,7 @@ namespace backend.Services.InventoryMasterServices
                 return false;
             }
         }
+
     }
 }
 
